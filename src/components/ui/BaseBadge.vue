@@ -5,13 +5,23 @@
 </template>
 
 <script>
+import { computed } from 'vue';
 export default {
   props: ['type', 'title'],
-  computed: {
-    text() {
-      return this.title.toUpperCase();
-    },
+  setup(props) {
+    const text = computed(function () {
+      return props.title.toUpperCase();
+    });
+
+    return {
+      text,
+    };
   },
+  // computed: {
+  //   text() {
+  //     return this.title.toUpperCase();
+  //   },
+  // },
 };
 </script>
 

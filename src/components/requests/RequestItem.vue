@@ -8,13 +8,22 @@
 </template>
 
 <script>
+import { computed } from 'vue';
 export default {
   props: ['email', 'message'],
-  computed: {
-    emailLink() {
-      return 'mailto:' + this.email;
-    },
+  setup(props) {
+    const emailLink = computed(function () {
+      return 'mailto:' + props.email;
+    });
+    return {
+      emailLink,
+    };
   },
+  // computed: {
+  //   emailLink() {
+  //     return 'mailto:' + this.email;
+  //   },
+  // },
 };
 </script>
 

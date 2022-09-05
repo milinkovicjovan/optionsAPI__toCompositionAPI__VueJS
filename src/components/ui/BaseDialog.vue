@@ -39,14 +39,26 @@ export default {
     },
   },
   emits: ['close'],
-  methods: {
-    tryClose() {
-      if (this.fixed) {
+  setup(props, context) {
+    function tryClose() {
+      if (props.fixed) {
         return;
       }
-      this.$emit('close');
-    },
+      context.emit('close');
+    }
+
+    return {
+      tryClose,
+    };
   },
+  // methods: {
+  //   tryClose() {
+  //     if (this.fixed) {
+  //       return;
+  //     }
+  //     this.$emit('close');
+  //   },
+  // },
 };
 </script>
 

@@ -8,7 +8,9 @@
       <label for="message">Message</label>
       <textarea rows="5" id="message" v-model.trim="message"></textarea>
     </div>
-    <p class="errors" v-if="!formIsValid">Please enter a valid email and non-empty message.</p>
+    <p class="errors" v-if="!formIsValid">
+      Please enter a valid email and non-empty message.
+    </p>
     <div class="actions">
       <base-button>Send Message</base-button>
     </div>
@@ -16,34 +18,69 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 export default {
-  data() {
-    return {
-      email: '',
-      message: '',
-      formIsValid: true,
-    };
-  },
-  methods: {
-    submitForm() {
-      this.formIsValid = true;
+  setup() {
+    const email = ref('');
+    const message = ref('');
+    const formIsValid = ref(true);
+    const route = useRoute();
+    const router = useRouter();
+    const store = useStore();
+
+    function submitForm() {
+      formIsValid.value = true;
       if (
-        this.email === '' ||
-        !this.email.includes('@') ||
-        this.message === ''
+        email.value === '' ||
+        !email.value.includes('@') ||
+        message.value === ''
       ) {
-        this.formIsValid = false;
+        formIsValid.value = false;
         return;
       }
-      this.$store.dispatch('requests/contactCoach', {
-        email: this.email,
-        message: this.message,
-        coachId: this.$route.params.id
+      store.dispatch('requests/contactCoach', {
+        email: email.value,
+        message: message.value,
+        coachId: route.params.id,
       });
-      this.$router.replace('/coaches');
+      router.replace('/coaches');
+    }
 
-    },
+    return {
+      email,
+      message,
+      formIsValid,
+      submitForm,
+    };
   },
+  // data() {
+  //   return {
+  //     email: '',
+  //     message: '',
+  //     formIsValid: true,
+  //   };
+  // },
+  // methods: {
+  //   submitForm() {
+  //     this.formIsValid = true;
+  //     if (
+  //       this.email === '' ||
+  //       !this.email.includes('@') ||
+  //       this.message === ''
+  //     ) {
+  //       this.formIsValid = false;
+  //       return;
+  //     }
+  //     this.$store.dispatch('requests/contactCoach', {
+  //       email: this.email,
+  //       message: this.message,
+  //       coachId: this.$route.params.id,
+  //     });
+  //     this.$router.replace('/coaches');
+  //   },
+  // },
 };
 </script>
 

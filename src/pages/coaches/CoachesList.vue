@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
 import CoachItem from '../../components/coaches/CoachItem.vue';
 import CoachFilter from '../../components/coaches/CoachFilter.vue';
 
@@ -55,65 +57,140 @@ export default {
     CoachItem,
     CoachFilter,
   },
-  data() {
-    return {
-      isLoading: false,
-      error: null,
-      activeFilters: {
-        frontend: true,
-        backend: true,
-        career: true,
-      },
-    };
-  },
-  computed: {
-    isLoggedIn() {
-      return this.$store.getters.isAuthenticated;
-    },
-    isCoach() {
-      return this.$store.getters['coaches/isCoach'];
-    },
-    filteredCoaches() {
-      const coaches = this.$store.getters['coaches/coaches'];
+  setup() {
+    let isLoading = ref(false);
+    let error = ref(null);
+    let activeFilters = ref({
+      frontend: true,
+      backend: true,
+      career: true,
+    });
+    const store = useStore();
+
+    const isLoggedIn = computed(function () {
+      return store.getters.isAuthenticated;
+    });
+
+    const isCoach = computed(function () {
+      return store.getters['coaches/isCoach'];
+    });
+
+    const filteredCoaches = computed(function () {
+      const coaches = store.getters['coaches/coaches'];
       return coaches.filter((coach) => {
-        if (this.activeFilters.frontend && coach.areas.includes('frontend')) {
+        if (activeFilters.value.frontend && coach.areas.includes('frontend')) {
           return true;
         }
-        if (this.activeFilters.backend && coach.areas.includes('backend')) {
+        if (activeFilters.value.backend && coach.areas.includes('backend')) {
           return true;
         }
-        if (this.activeFilters.career && coach.areas.includes('career')) {
+        if (activeFilters.value.career && coach.areas.includes('career')) {
           return true;
         }
         return false;
       });
-    },
-    hasCoaches() {
-      return !this.isLoading && this.$store.getters['coaches/hasCoaches'];
-    },
-  },
-  created() {
-    this.loadCoaches();
-  },
-  methods: {
-    setFilters(updatedFilters) {
-      this.activeFilters = updatedFilters;
-    },
-    async loadCoaches(refresh = false) {
-      this.isLoading = true;
+    });
+
+    const hasCoaches = computed(function () {
+      return !isLoading.value && store.getters['coaches/hasCoaches'];
+    });
+
+    //////////////////////////////
+    // Created Lifecycle Hook CODE
+    loadCoaches();
+
+    function setFilters(updatedFilters) {
+      activeFilters.value = updatedFilters;
+    }
+
+    async function loadCoaches(refresh = false) {
+      isLoading.value = true;
       try {
-        await this.$store.dispatch('coaches/loadCoaches', {
+        await store.dispatch('coaches/loadCoaches', {
           forceRefresh: refresh,
         });
       } catch (error) {
-        this.error = error.message || 'Something went wrong!';
+        error.value = error.message || 'Something went wrong!';
       }
-      this.isLoading = false;
-    },
-    handleError() {
-      this.error = null;
-    },
+      isLoading.value = false;
+    }
+
+    function handleError() {
+      error.value = null;
+    }
+
+    return {
+      isLoading,
+      error,
+      activeFilters,
+      isLoggedIn,
+      isCoach,
+      filteredCoaches,
+      hasCoaches,
+      setFilters,
+      loadCoaches,
+      handleError,
+    };
   },
+  // data() {
+  //   return {
+  //     isLoading: false,
+  //     error: null,
+  //     activeFilters: {
+  //       frontend: true,
+  //       backend: true,
+  //       career: true,
+  //     },
+  //   };
+  // },
+  // computed: {
+  //   isLoggedIn() {
+  //     return this.$store.getters.isAuthenticated;
+  //   },
+  //   isCoach() {
+  //     return this.$store.getters['coaches/isCoach'];
+  //   },
+  //   filteredCoaches() {
+  //     const coaches = this.$store.getters['coaches/coaches'];
+  //     return coaches.filter((coach) => {
+  //       if (this.activeFilters.frontend && coach.areas.includes('frontend')) {
+  //         return true;
+  //       }
+  //       if (this.activeFilters.backend && coach.areas.includes('backend')) {
+  //         return true;
+  //       }
+  //       if (this.activeFilters.career && coach.areas.includes('career')) {
+  //         return true;
+  //       }
+  //       return false;
+  //     });
+  //   },
+  //   hasCoaches() {
+  //     return !this.isLoading && this.$store.getters['coaches/hasCoaches'];
+  //   },
+  // },
+  // created() {
+  //   this.loadCoaches();
+  // },
+  // methods: {
+  //   setFilters(updatedFilters) {
+  //     this.activeFilters = updatedFilters;
+  //   },
+  //   async loadCoaches(refresh = false) {
+  //     this.isLoading = true;
+  //     try {
+  //       await this.$store.dispatch('coaches/loadCoaches', {
+  //         forceRefresh: refresh,
+  //       });
+  //     } catch (error) {
+  //       this.error = error.message || 'Something went wrong!';
+  //     }
+  //     this.isLoading = false;
+  //   },
+  //   handleError() {
+  //     this.error = null;
+  //   },
+  // },
 };
 </script>
 

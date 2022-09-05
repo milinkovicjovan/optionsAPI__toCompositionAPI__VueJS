@@ -2,12 +2,14 @@ let timer;
 
 export default {
   async login(context, payload) {
+    console.log('login action');
     return context.dispatch('auth', {
       ...payload,
       mode: 'login',
     });
   },
   async signup(context, payload) {
+    console.log('signup action');
     return context.dispatch('auth', {
       ...payload,
       mode: 'signup',
@@ -32,6 +34,8 @@ export default {
     });
 
     const responseData = await response.json();
+
+    // console.log(responseData);
 
     if (!response.ok) {
       const error = new Error(
@@ -62,11 +66,17 @@ export default {
     const userId = localStorage.getItem('userId');
     const tokenExpiration = localStorage.getItem('tokenExpiration');
 
+    // we check if data exists and if it does
+    // we set a user
+
     const expiresIn = +tokenExpiration - new Date().getTime();
 
     if (expiresIn < 0) {
       return;
     }
+
+    // if timer is expired there is no need
+    // to continue to login
 
     timer = setTimeout(function () {
       context.dispatch('autoLogout');
@@ -85,6 +95,7 @@ export default {
     localStorage.removeItem('tokenExpiration');
 
     clearTimeout(timer);
+    // if we logout we want to clear timer
 
     context.commit('setUser', {
       token: null,

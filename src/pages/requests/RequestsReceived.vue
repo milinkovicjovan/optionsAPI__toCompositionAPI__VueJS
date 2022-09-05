@@ -1,6 +1,10 @@
 <template>
   <div>
-    <base-dialog :show="!!error" title="An error occurred!" @close="handleError">
+    <base-dialog
+      :show="!!error"
+      title="An error occurred!"
+      @close="handleError"
+    >
       <p>{{ error }}</p>
     </base-dialog>
     <section>
@@ -24,43 +28,87 @@
 </template>
 
 <script>
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
 import RequestItem from '../../components/requests/RequestItem.vue';
 
 export default {
   components: {
     RequestItem,
   },
-  data() {
+  setup() {
+    let isLoading = ref(false);
+    let error = ref(null);
+    const store = useStore();
+
+    const receivedRequests = computed(function () {
+      return store.getters['requests/requests'];
+    });
+
+    const hasRequests = computed(function () {
+      return store.getters['requests/hasRequests'];
+    });
+
+    //////////////////////////
+    // Created Lifecycle Hook CODE
+    loadRequests();
+    // method will be executed when
+    // loadRequests are created
+
+    async function loadRequests() {
+      isLoading.value = true;
+      try {
+        await store.dispatch('requests/fetchRequests');
+      } catch (error) {
+        error.value = error.message || 'Something failed!';
+      }
+      isLoading.value = false;
+    }
+
+    function handleError() {
+      error.value = null;
+    }
+
     return {
-      isLoading: false,
-      error: null,
+      isLoading,
+      error,
+      receivedRequests,
+      hasRequests,
+      loadRequests,
+      handleError,
     };
   },
-  computed: {
-    receivedRequests() {
-      return this.$store.getters['requests/requests'];
-    },
-    hasRequests() {
-      return this.$store.getters['requests/hasRequests'];
-    },
-  },
-  created() {
-    this.loadRequests();
-  },
-  methods: {
-    async loadRequests() {
-      this.isLoading = true;
-      try {
-        await this.$store.dispatch('requests/fetchRequests');
-      } catch (error) {
-        this.error = error.message || 'Something failed!';
-      }
-      this.isLoading = false;
-    },
-    handleError() {
-      this.error = null;
-    },
-  },
+  // data() {
+  //   return {
+  //     isLoading: false,
+  //     error: null,
+  //   };
+  // },
+  // computed: {
+  //   receivedRequests() {
+  //     return this.$store.getters['requests/requests'];
+  //   },
+  //   hasRequests() {
+  //     return this.$store.getters['requests/hasRequests'];
+  //   },
+  // },
+  // created() {
+  //   this.loadRequests();
+  // },
+  // methods: {
+  //   async loadRequests() {
+  //     this.isLoading = true;
+  //     try {
+  //       await this.$store.dispatch('requests/fetchRequests');
+  //     } catch (error) {
+  //       this.error = error.message || 'Something failed!';
+  //     }
+  //     this.isLoading = false;
+  //   },
+  //   handleError() {
+  //     this.error = null;
+  //   },
+  // },
 };
 </script>
 

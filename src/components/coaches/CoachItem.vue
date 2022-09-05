@@ -20,19 +20,43 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
 export default {
   props: ['id', 'firstName', 'lastName', 'rate', 'areas'],
-  computed: {
-    fullName() {
-      return this.firstName + ' ' + this.lastName;
-    },
-    coachContactLink() {
-      return this.$route.path + '/' + this.id + '/contact'; // /coaches/c1/contact
-    },
-    coachDetailsLink() {
-      return this.$route.path + '/' + this.id; // /coaches/c1
-    },
+  setup(props) {
+    const route = useRoute();
+
+    const fullName = computed(function () {
+      return props.firstName + ' ' + props.lastName;
+    });
+
+    const coachContactLink = computed(function () {
+      return route.path + '/' + props.id + '/contact'; // /coaches/c1/contact
+    });
+
+    const coachDetailsLink = computed(function () {
+      return route.path + '/' + props.id; // /coaches/c1
+    });
+
+    return {
+      fullName,
+      coachContactLink,
+      coachDetailsLink,
+    };
   },
+  // computed: {
+  //   fullName() {
+  //     return this.firstName + ' ' + this.lastName;
+  //   },
+  //   coachContactLink() {
+  //     return this.$route.path + '/' + this.id + '/contact'; // /coaches/c1/contact
+  //   },
+  //   coachDetailsLink() {
+  //     return this.$route.path + '/' + this.id; // /coaches/c1
+  //   },
+  // },
 };
 </script>
 

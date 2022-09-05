@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="submitForm">
-    <div class="form-control" :class="{invalid: !firstName.isValid}">
+    <div class="form-control" :class="{ invalid: !firstName.isValid }">
       <label for="firstname">Firstname</label>
       <input
         type="text"
@@ -10,7 +10,7 @@
       />
       <p v-if="!firstName.isValid">Firstname must not be empty.</p>
     </div>
-    <div class="form-control" :class="{invalid: !lastName.isValid}">
+    <div class="form-control" :class="{ invalid: !lastName.isValid }">
       <label for="lastname">Lastname</label>
       <input
         type="text"
@@ -20,7 +20,7 @@
       />
       <p v-if="!lastName.isValid">Lastname must not be empty.</p>
     </div>
-    <div class="form-control" :class="{invalid: !description.isValid}">
+    <div class="form-control" :class="{ invalid: !description.isValid }">
       <label for="description">Description</label>
       <textarea
         id="description"
@@ -30,12 +30,17 @@
       ></textarea>
       <p v-if="!description.isValid">Description must not be empty.</p>
     </div>
-    <div class="form-control" :class="{invalid: !rate.isValid}">
+    <div class="form-control" :class="{ invalid: !rate.isValid }">
       <label for="rate">Hourly Rate</label>
-      <input type="number" id="rate" v-model.number="rate.val" @blur="clearValidity('rate')" />
+      <input
+        type="number"
+        id="rate"
+        v-model.number="rate.val"
+        @blur="clearValidity('rate')"
+      />
       <p v-if="!rate.isValid">Rate must be greater than 0.</p>
     </div>
-    <div class="form-control" :class="{invalid: !areas.isValid}">
+    <div class="form-control" :class="{ invalid: !areas.isValid }">
       <h3>Areas of Expertise</h3>
       <div>
         <input
@@ -75,78 +80,161 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 export default {
   emits: ['save-data'],
-  data() {
-    return {
-      firstName: {
-        val: '',
-        isValid: true,
-      },
-      lastName: {
-        val: '',
-        isValid: true,
-      },
-      description: {
-        val: '',
-        isValid: true,
-      },
-      rate: {
-        val: null,
-        isValid: true,
-      },
-      areas: {
-        val: [],
-        isValid: true,
-      },
-      formIsValid: true,
-    };
-  },
-  methods: {
-    clearValidity(input) {
-      this[input].isValid = true;
-    },
-    validateForm() {
-      this.formIsValid = true;
-      if (this.firstName.val === '') {
-        this.firstName.isValid = false;
-        this.formIsValid = false;
-      }
-      if (this.lastName.val === '') {
-        this.lastName.isValid = false;
-        this.formIsValid = false;
-      }
-      if (this.description.val === '') {
-        this.description.isValid = false;
-        this.formIsValid = false;
-      }
-      if (!this.rate.val || this.rate.val < 0) {
-        this.rate.isValid = false;
-        this.formIsValid = false;
-      }
-      if (this.areas.val.length === 0) {
-        this.areas.isValid = false;
-        this.formIsValid = false;
-      }
-    },
-    submitForm() {
-      this.validateForm();
+  setup(_, context) {
+    let firstName = ref({
+      val: '',
+      isValid: true,
+    });
+    let lastName = ref({
+      val: '',
+      isValid: true,
+    });
+    let description = ref({
+      val: '',
+      isValid: true,
+    });
+    let rate = ref({
+      val: null,
+      isValid: true,
+    });
+    let areas = ref({
+      val: [],
+      isValid: true,
+    });
+    let formIsValid = ref(true);
 
-      if (!this.formIsValid) {
+    function clearValidity(input) {
+      this[input].isValid = true;
+    }
+
+    function validateForm() {
+      formIsValid.value = true;
+      if (firstName.value.val === '') {
+        firstName.value.isValid = false;
+        formIsValid.value = false;
+      }
+      if (lastName.value.val === '') {
+        lastName.value.isValid = false;
+        formIsValid.value = false;
+      }
+      if (description.value.val === '') {
+        description.value.isValid = false;
+        formIsValid.value = false;
+      }
+      if (!rate.value.val || rate.value.val < 0) {
+        rate.value.isValid = false;
+        formIsValid.value = false;
+      }
+      if (areas.value.val.length === 0) {
+        areas.value.isValid = false;
+        formIsValid.value = false;
+      }
+    }
+
+    function submitForm() {
+      validateForm();
+
+      if (!formIsValid.value) {
         return;
       }
 
       const formData = {
-        first: this.firstName.val,
-        last: this.lastName.val,
-        desc: this.description.val,
-        rate: this.rate.val,
-        areas: this.areas.val,
+        first: firstName.value.val,
+        last: lastName.value.val,
+        desc: description.value.val,
+        rate: rate.value.val,
+        areas: areas.value.val,
       };
+      console.log(formData);
 
-      this.$emit('save-data', formData);
-    },
+      context.emit('save-data', formData);
+    }
+
+    return {
+      firstName,
+      lastName,
+      description,
+      rate,
+      areas,
+      formIsValid,
+      clearValidity,
+      validateForm,
+      submitForm,
+    };
   },
+  // data() {
+  //   return {
+  //     firstName: {
+  //       val: '',
+  //       isValid: true,
+  //     },
+  //     lastName: {
+  //       val: '',
+  //       isValid: true,
+  //     },
+  //     description: {
+  //       val: '',
+  //       isValid: true,
+  //     },
+  //     rate: {
+  //       val: null,
+  //       isValid: true,
+  //     },
+  //     areas: {
+  //       val: [],
+  //       isValid: true,
+  //     },
+  //     formIsValid: true,
+  //   };
+  // },
+  // methods: {
+  //   clearValidity(input) {
+  //     this[input].isValid = true;
+  //   },
+  //   validateForm() {
+  //     this.formIsValid = true;
+  //     if (this.firstName.val === '') {
+  //       this.firstName.isValid = false;
+  //       this.formIsValid = false;
+  //     }
+  //     if (this.lastName.val === '') {
+  //       this.lastName.isValid = false;
+  //       this.formIsValid = false;
+  //     }
+  //     if (this.description.val === '') {
+  //       this.description.isValid = false;
+  //       this.formIsValid = false;
+  //     }
+  //     if (!this.rate.val || this.rate.val < 0) {
+  //       this.rate.isValid = false;
+  //       this.formIsValid = false;
+  //     }
+  //     if (this.areas.val.length === 0) {
+  //       this.areas.isValid = false;
+  //       this.formIsValid = false;
+  //     }
+  //   },
+  //   submitForm() {
+  //     this.validateForm();
+
+  //     if (!this.formIsValid) {
+  //       return;
+  //     }
+
+  //     const formData = {
+  //       first: this.firstName.val,
+  //       last: this.lastName.val,
+  //       desc: this.description.val,
+  //       rate: this.rate.val,
+  //       areas: this.areas.val,
+  //     };
+
+  //     this.$emit('save-data', formData);
+  //   },
+  // },
 };
 </script>
 

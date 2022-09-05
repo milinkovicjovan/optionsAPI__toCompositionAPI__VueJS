@@ -30,34 +30,77 @@
 </template>
 
 <script>
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useStore } from 'vuex';
+
 export default {
   props: ['id'],
-  data() {
+  // router.js props:true
+  setup(props) {
+    let selectedCoach = ref(null);
+    const route = useRoute();
+    const store = useStore();
+
+    let fullName = computed(function () {
+      return selectedCoach.value.firstName + ' ' + selectedCoach.value.lastName;
+    });
+    let areas = computed(function () {
+      return selectedCoach.value.areas;
+    });
+    let rate = computed(function () {
+      return selectedCoach.value.hourlyRate;
+    });
+    let description = computed(function () {
+      return selectedCoach.value.description;
+    });
+    let contactLink = computed(function () {
+      return route.path + '/' + props.id + '/contact';
+    });
+
+    ////////////////////////////////////
+    // Created Lifecycle Hook CODE
+
+    selectedCoach.value = store.getters['coaches/coaches'].find(
+      (coach) => coach.id === props.id
+    );
+    // we go through all coaches and then
+    // with find, we compare coaches id with prop id in link
+
     return {
-      selectedCoach: null,
+      fullName,
+      areas,
+      rate,
+      description,
+      contactLink,
     };
   },
-  computed: {
-    fullName() {
-      return this.selectedCoach.firstName + ' ' + this.selectedCoach.lastName;
-    },
-    areas() {
-      return this.selectedCoach.areas;
-    },
-    rate() {
-      return this.selectedCoach.hourlyRate;
-    },
-    description() {
-      return this.selectedCoach.description;
-    },
-    contactLink() {
-      return this.$route.path + '/' + this.id + '/contact';
-    },
-  },
-  created() {
-    this.selectedCoach = this.$store.getters['coaches/coaches'].find(
-      (coach) => coach.id === this.id
-    );
-  },
+  // data() {
+  //   return {
+  //     selectedCoach: null,
+  //   };
+  // },
+  // computed: {
+  //   fullName() {
+  //     return this.selectedCoach.firstName + ' ' + this.selectedCoach.lastName;
+  //   },
+  //   areas() {
+  //     return this.selectedCoach.areas;
+  //   },
+  //   rate() {
+  //     return this.selectedCoach.hourlyRate;
+  //   },
+  //   description() {
+  //     return this.selectedCoach.description;
+  //   },
+  //   contactLink() {
+  //     return this.$route.path + '/' + this.id + '/contact';
+  //   },
+  // },
+  // created() {
+  //   this.selectedCoach = this.$store.getters['coaches/coaches'].find(
+  //     (coach) => coach.id === this.id
+  //   );
+  // },
 };
 </script>
